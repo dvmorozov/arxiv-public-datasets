@@ -219,6 +219,7 @@ def all_of_arxiv(outfile=None, resumptionToken=None, autoresume=True):
     tokenfile = '{}-resumptionToken.txt'.format(outfile)
     chunk_index = 0
     total_records = 0
+    first_record = True
 
     log.info('Saving metadata to "{}"'.format(outfile))
 
@@ -229,6 +230,9 @@ def all_of_arxiv(outfile=None, resumptionToken=None, autoresume=True):
         except Exception as e:
             log.warn("No tokenfile found '{}'".format(tokenfile))
             log.info("Starting download from scratch...")
+
+    with gzip.open(outfile, 'at', encoding='utf-8') as fout:
+        fout.write('{articles: [\n')
 
     while True:
         log.info('Index {:4d} | Records {:7d} | resumptionToken "{}"'.format(
@@ -243,12 +247,17 @@ def all_of_arxiv(outfile=None, resumptionToken=None, autoresume=True):
 
         with gzip.open(outfile, 'at', encoding='utf-8') as fout:
             for rec in records:
-                fout.write(json.dumps(rec) + '\n')
+                if not first_record:
+                    fout.write(',\n')
+                fout.write(json.dumps(rec))
+                first_record = False
         if resumptionToken:
             with open(tokenfile, 'w') as fout:
                 fout.write(resumptionToken)
         else:
             log.info('No resumption token, query finished')
+            with gzip.open(outfile, 'at', encoding='utf-8') as fout:
+                fout.write(']\n')
             return
 
         time.sleep(12)  # OAI server usually requires a 10s wait
