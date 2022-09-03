@@ -235,32 +235,35 @@ def all_of_arxiv(outfile=None, resumptionToken=None, autoresume=True):
         fout.write('{"articles": [\n')
 
     while True:
-        log.info('Index {:4d} | Records {:7d} | resumptionToken "{}"'.format(
-            chunk_index, total_records, resumptionToken)
-        )
-        xml_root = ET.fromstring(get_list_record_chunk(resumptionToken))
-        check_xml_errors(xml_root)
-        records, resumptionToken = parse_xml_listrecords(xml_root)
+        try:
+            log.info('Index {:4d} | Records {:7d} | resumptionToken "{}"'.format(
+                chunk_index, total_records, resumptionToken)
+            )
+            xml_root = ET.fromstring(get_list_record_chunk(resumptionToken))
+            check_xml_errors(xml_root)
+            records, resumptionToken = parse_xml_listrecords(xml_root)
 
-        chunk_index = chunk_index + 1
-        total_records = total_records + len(records)
+            chunk_index = chunk_index + 1
+            total_records = total_records + len(records)
 
-        with gzip.open(outfile, 'at', encoding='utf-8') as fout:
-            for rec in records:
-                if not first_record:
-                    fout.write(',\n')
-                fout.write(json.dumps(rec))
-                first_record = False
-        if resumptionToken:
-            with open(tokenfile, 'w') as fout:
-                fout.write(resumptionToken)
-        else:
-            log.info('No resumption token, query finished')
             with gzip.open(outfile, 'at', encoding='utf-8') as fout:
-                fout.write(']\n')
-            return
+                for rec in records:
+                    if not first_record:
+                        fout.write(',\n')
+                    fout.write(json.dumps(rec))
+                    first_record = False
+            if resumptionToken:
+                with open(tokenfile, 'w') as fout:
+                    fout.write(resumptionToken)
+            else:
+                log.info('No resumption token, query finished')
+                with gzip.open(outfile, 'at', encoding='utf-8') as fout:
+                    fout.write(']\n')
+                return
 
-        time.sleep(12)  # OAI server usually requires a 10s wait
+            time.sleep(12)  # OAI server usually requires a 10s wait
+        except Exception as e:
+            print(e)
 
 def load_metadata(infile=None):
     """
