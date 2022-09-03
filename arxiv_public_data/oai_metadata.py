@@ -232,7 +232,7 @@ def all_of_arxiv(outfile=None, resumptionToken=None, autoresume=True):
             log.info("Starting download from scratch...")
 
     with gzip.open(outfile, 'at', encoding='utf-8') as fout:
-        fout.write('{articles: [\n')
+        fout.write('{"articles": [\n')
 
     while True:
         log.info('Index {:4d} | Records {:7d} | resumptionToken "{}"'.format(
