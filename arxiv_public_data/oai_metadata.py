@@ -258,7 +258,9 @@ def all_of_arxiv(outfile=None, resumptionToken=None, autoresume=True):
             else:
                 log.info('No resumption token, query finished')
                 with gzip.open(outfile, 'at', encoding='utf-8') as fout:
-                    fout.write(']}\n')
+                    fout.write('],\n')
+                    fout.write('updated: "' + str(datetime.datetime.now().strftime("%d %b %Y %H:%M:%S %Z")) + '"\n')
+                    fout.write('}\n')
                 return
 
             time.sleep(12)  # OAI server usually requires a 10s wait
