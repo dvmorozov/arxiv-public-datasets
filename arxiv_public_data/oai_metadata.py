@@ -259,7 +259,7 @@ def all_of_arxiv(outfile=None, resumptionToken=None, autoresume=True):
                 log.info('No resumption token, query finished')
                 with gzip.open(outfile, 'at', encoding='utf-8') as fout:
                     fout.write('],\n')
-                    fout.write('updated: "' + str(datetime.datetime.now().strftime("%d %b %Y %H:%M:%S %Z")) + '"\n')
+                    fout.write('"updated": "' + str(datetime.datetime.now().strftime("%d %b %Y %H:%M:%S %Z")) + '"\n')
                     fout.write('}\n')
                 return
 
